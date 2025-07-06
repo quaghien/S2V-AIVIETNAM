@@ -160,6 +160,7 @@ def print_summary(args):
     print(f"🎤 TTS Processing:      Sequential (1 thread)")
     print(f"🎬 Video Encoding:      GPU Accelerated")
     print(f"🔄 Workflow:            Individual Slide Processing")
+    print(f"📋 Content Ordering:    Logical slide sequence maintained")
     print("=" * 50)
 
 def main():
@@ -235,7 +236,6 @@ def main():
         if args.verbose:
             print(f"📁 Output folder created: {output_folder}")
         
-        print(f"\n🎬 Starting PDF to Video conversion...")
         start_time = time.time()
         
         # Process PDF to video with sequential TTS
@@ -258,12 +258,16 @@ def main():
         print(f"⏱️  Video duration:       {sum(durations):.2f} seconds")
         print(f"📄 Slides processed:     {len(durations)}")
         print(f"🎤 Processing Mode:      Sequential TTS + GPU Video")
+        print(f"📋 Content Organization: Logical slide sequence maintained")
         
         # Performance info
         if args.verbose:
             avg_per_slide = processing_time / len(durations)
             print(f"⚡ Avg per slide:        {avg_per_slide:.2f} seconds")
             print(f"🎤 TTS Engine:          Zalo AI")
+        
+        # Print detailed timing analysis
+        processor.timer.print_summary()
         
         print("\n✅ You can find all generated files in the output folder above.")
         return 0
