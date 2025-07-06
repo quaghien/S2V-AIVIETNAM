@@ -235,8 +235,8 @@ class GPTProcessor:
         print("📝 DEBUG - Reading translated file (generate_vietnamese_audio)...")
         with open(translated_file, 'r', encoding='utf-8') as f:
             translated_content = f.read()
-        print("📝 DEBUG - Translated file content (first 300 chars):")
-        print(repr(translated_content[:300]))
+        print("📝 DEBUG - Translated file content (first 100 chars):")
+        print(repr(translated_content[:100]))
         print()
         
         vietnamese_descriptions = self.extract_slide_descriptions(translated_content, keep_tags=True)
@@ -524,8 +524,8 @@ emphasize of the speech is identify by the caps of the word, the !!! the ??? the
 
     def extract_slide_descriptions(self, final_context, keep_tags=False):
         print(f"📝 DEBUG - extract_slide_descriptions called with keep_tags={keep_tags}")
-        print("📝 DEBUG - Input content (first 300 chars):")
-        print(repr(final_context[:300]))
+        print("📝 DEBUG - Input content (first 100 chars):")
+        print(repr(final_context[:100]))
         
         if keep_tags:
             # Handle both #slide# and #Trình# patterns and KEEP the tags
@@ -547,18 +547,23 @@ emphasize of the speech is identify by the caps of the word, the !!! the ??? the
         full_content = self.read_file(descriptions_file)
         
         print("🌐 Translating content to Vietnamese...")
-        print("📝 DEBUG - Original content (first 300 chars):")
-        print(repr(full_content[:300]))
+        print("📝 DEBUG - Original content (first 100 chars):")
+        print(repr(full_content[:100]))
         print()
         
         response = self.gemini_client.models.generate_content(
             model="gemini-2.5-flash-preview-05-20",
-            contents=f"Dịch toàn bộ sang tiếng việt, trả đúng format y như cũ, rút gọn nội dung, không thay đổi nội dung slide: {full_content}",
+            contents=f'''Dịch toàn bộ sang tiếng việt, trả đúng format y như cũ, rút gọn nội dung, không thay đổi nội dung slide. 
+                QUAN TRỌNG:
+                - Khi gặp công thức toán học, hãy tạo lại chính xác cách đọc công thức thành văn đọc tiếng Việt
+                ***Ví dụ: "Â_i = (r_i - μ)/σ" → "Â i bằng r i trừ miu, tất cả chia sigma"***
+                - Tự động nhận diện các nơi cần ngắt hơi (im lặng), và thêm ' <<<sil#100>>> ' vào những nơi đó.
+                Nội dung slide: {full_content}''',
         )
         
         translated_content = response.text
-        print("📝 DEBUG - Translated content BEFORE tag replacement (first 300 chars):")
-        print(repr(translated_content[:300]))
+        print("📝 DEBUG - Translated content BEFORE tag replacement (first 100 chars):")
+        print(repr(translated_content[:100]))
         print()
         
         # Replace #slide X# with #Trình X#
@@ -570,8 +575,8 @@ emphasize of the speech is identify by the caps of the word, the !!! the ??? the
         
         new_tags = re.findall(r'#Trình\s*\d+#', translated_content)
         print(f"📝 DEBUG - New tags after replacement: {new_tags}")
-        print("📝 DEBUG - Translated content AFTER tag replacement (first 300 chars):")
-        print(repr(translated_content[:300]))
+        print("📝 DEBUG - Translated content AFTER tag replacement (first 100 chars):")
+        print(repr(translated_content[:100]))
         print()
         
         # Save translated content
@@ -615,7 +620,7 @@ emphasize of the speech is identify by the caps of the word, the !!! the ??? the
             try:
                 response = self.gemini_client.models.generate_content(
                     model="gemini-2.5-flash-preview-tts",
-                    contents=f"Đọc trong tiếng việt. {description}",
+                    contents=f"Bạn là một chuyên gia lĩnh vực AI, hãy đọc bằng tiếng việt nhưng bạn phải đọc các từ viết tắt, thuật ngữ chuyên ngành bằng tiếng anh. Đoạn bạn cần đọc là: {description}",
                     config=types.GenerateContentConfig(
                         response_modalities=["AUDIO"],
                         speech_config=types.SpeechConfig(
@@ -660,8 +665,8 @@ emphasize of the speech is identify by the caps of the word, the !!! the ??? the
                 
                 response = self.gemini_client.models.generate_content(
                     model="gemini-2.5-flash-preview-tts",
-                    contents=f"Đọc trong tiếng việt. {combined_content}",
-                    config=types.GenerateContentConfig(
+                    contents=f"Bạn là một chuyên gia lĩnh vực AI, hãy đọc bằng tiếng việt nhưng bạn phải đọc các từ viết tắt, thuật ngữ chuyên ngành bằng tiếng anh. Đoạn bạn cần đọc là: {description}",
+                    config=types.GenerateContentConfig( 
                         response_modalities=["AUDIO"],
                         speech_config=types.SpeechConfig(
                             voice_config=types.VoiceConfig(

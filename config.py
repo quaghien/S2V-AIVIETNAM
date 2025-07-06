@@ -14,6 +14,7 @@ class Config:
         self.openai_api_key = os.getenv('OPENAI_API_KEY', '')
         self.anthropic_api_key = os.getenv('ANTHROPIC_API_KEY', '')
         self.gemini_api_key = os.getenv('GEMINI_API_KEY', '')
+        self.zalo_api_key = os.getenv('ZALO_API_KEY', '')
         
         # Default file paths
         self.default_pdf_path = ""
@@ -21,7 +22,7 @@ class Config:
         
         # Processing settings
         self.pdf_batch_size = 5
-        self.tts_batch_size = 5
+        self.max_threads = 4
         self.use_batch_splitting = True
         
         # Video settings
@@ -52,7 +53,7 @@ class Config:
             'default_pdf_path': self.default_pdf_path,
             'default_output_folder': self.default_output_folder,
             'pdf_batch_size': self.pdf_batch_size,
-            'tts_batch_size': self.tts_batch_size,
+            'max_threads': self.max_threads,
             'use_batch_splitting': self.use_batch_splitting,
             'video_fps': self.video_fps,
             'audio_rate': self.audio_rate
@@ -66,8 +67,23 @@ class Config:
             print(f"❌ Error saving config file: {e}")
     
     def get_api_keys(self):
-        """Get API keys tuple"""
-        return (self.openai_api_key, self.anthropic_api_key, self.gemini_api_key)
+        """Get all API keys"""
+        return self.openai_api_key, self.anthropic_api_key, self.gemini_api_key, self.zalo_api_key
+    
+    def validate_api_keys(self):
+        """Validate that required API keys are present"""
+        missing_keys = []
+        
+        if not self.openai_api_key:
+            missing_keys.append('OPENAI_API_KEY')
+        if not self.anthropic_api_key:
+            missing_keys.append('ANTHROPIC_API_KEY')
+        if not self.gemini_api_key:
+            missing_keys.append('GEMINI_API_KEY')
+        if not self.zalo_api_key:
+            missing_keys.append('ZALO_API_KEY')
+            
+        return missing_keys
     
     def to_dict(self):
         """Convert config to dictionary"""
@@ -75,7 +91,7 @@ class Config:
             'pdf_path': self.default_pdf_path,
             'output_folder': self.default_output_folder,
             'pdf_batch_size': self.pdf_batch_size,
-            'tts_batch_size': self.tts_batch_size,
+            'max_threads': self.max_threads,
             'use_batch_splitting': self.use_batch_splitting,
             'video_fps': self.video_fps,
             'audio_rate': self.audio_rate
